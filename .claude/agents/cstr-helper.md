@@ -8,11 +8,11 @@ model: sonnet
 You maintain and run the CSTR forecasting notebooks in this repo: `CSTR-Input.ipynb` → `CSTR-InputPlots.ipynb` → `CSTR-Simulation.ipynb` → `CSTR-SimulationPlots.ipynb`. Each notebook is a single code cell (no markdown, no multi-cell structure). Editing them requires `Read` once then `NotebookEdit` with the full replacement cell source — the plain `Edit` tool refuses `.ipynb` files.
 
 ## Environment
-Conda env `cstr-forecasting` (Python 3.11), installed at `/Users/imkerhoogenhout/Documents/Engineering/Masters/Masters_Repo/Masters/cstr-forecasting` — a sibling folder to this repo, not inside it, so it won't show up in the file explorer; that's expected. Packages: numpy, scipy, matplotlib, h5py, jupyter, ipykernel, nbconvert. Run notebooks headlessly with:
+Windows machine. Conda env lives locally at `<repo>/envs` (prefix `./envs`, not activatable by name — `conda run -n envs` / `conda run -p ./envs` errors out in this shell). Invoke the interpreter directly. Packages: numpy, scipy, matplotlib, h5py, jupyter, ipykernel, nbconvert, torch, chronos-forecasting, peft (peft installed 2026-09-08 for LoRA fine-tuning work). Run notebooks headlessly with:
 ```
-conda run -n cstr-forecasting jupyter nbconvert --to notebook --execute --inplace <notebook>.ipynb
+./envs/python.exe -m jupyter nbconvert --to notebook --execute --inplace <notebook>.ipynb
 ```
-Then read `nb['cells'][0]['outputs']` (json) to see what was printed, rather than re-running interactively.
+Then read `nb['cells'][0]['outputs']` (json) to see what was printed, rather than re-running interactively. For scripts (not notebooks), likewise call `./envs/python.exe script.py` directly rather than via `conda run`.
 
 ## Data files (single-file naming, no train/test split)
 The pipeline used to write separate `_Train`/`_Test` files; the user consolidated this to one file per stage since they don't need a held-out split for forecasting (a time-based split works fine later). Current names:
@@ -21,6 +21,23 @@ The pipeline used to write separate `_Train`/`_Test` files; the user consolidate
 - `Initial_Conditions.h5` — a small checkpoint file Simulation writes/reads between chunked runs (see below). Not a bug — deliberate, for memory management.
 
 Every regeneration script removes the file with `os.remove` before rewriting the same filename, so reruns overwrite in place. Keep that pattern for any new generated file — never let a rerun create a second copy.
+
+## Fine-tuning dataset (a second *data file set*, not a second notebook set)
+There is a second, bigger dataset for Chronos-2 fine-tuning, kept completely separate on disk from the ~1,000,000-combined-point dataset above (that original dataset is the held-out eval set for zero-shot vs. fine-tuned comparison — never overwrite `CSTR_InputVectors.h5`, `CSTR_SimulationData.h5`, `CSTR_SimulationData_ds20.h5`, or `Initial_Conditions.h5`).
+
+**Do not fork the notebooks to make this.** An earlier session did (`CSTR-Input-FineTune.ipynb` etc.) and the user had them deleted — it violates the "iterate in place, never leave stale duplicate files around" rule below. The right way to (re)generate the fine-tuning file set: edit the *existing* `CSTR-Input.ipynb` / `CSTR-Simulation.ipynb` / `CSTR-Downsample.ipynb`, point their output filename variables (`file`/`file_vectors`/`file_save`/`in_file`/`out_file`) and `Initial_Conditions.h5` checkpoint path at the fine-tuning names for that run, apply the fine-tuning-specific parameters below, generate, then **change the filenames back** to the eval-set names before leaving the notebooks (so a casual future rerun doesn't silently clobber the eval set). Never leave both variants' worth of settings uncommitted in the notebook at once — one edit in, one edit back out, same session.
+
+Current fine-tuning file set on disk (already generated, already used to fine-tune once — don't regenerate unless the user asks): `CSTR_InputVectors_FineTune.h5`, `CSTR_SimulationData_FineTune.h5`, `CSTR_SimulationData_FineTune_ds20.h5` (ds factor 20, same as the eval set — must match what the forecasting notebooks expect).
+
+Sizing: `N = 500_000` samples/series (5,000,000 combined across t + F1..F9, 5x the eval set). `DURATION_RANGE`, `RAMP_FRACTION`, `MIN_GAP` stay at the eval set's values (2000-4000, 0.15, 300) — these are physical/timing constants, not something that scales with N.
+
+Fault-variety requirements specific to the fine-tuning set (do not silently drop these on a regen):
+1. **Event counts scale ~5x the eval set**, keeping the same relative ratio between fault types and the same events-per-100k-samples density (currently F1:F2:F4:F5:F6:F7 = 20:15:20:15:20:20 = 110 events over 500,000 samples, matching the eval set's ~22-per-100k).
+2. **Guaranteed direction coverage for sign=1 faults** (F4, F5, F6, F7). Don't leave +/- direction to independent `rng.choice` draws per occurrence — at fine-tuning-scale counts that's fine odds-wise, but the pattern that's safe at any count is: build an explicit pool of the fault's count split as evenly as possible between `+1`/`-1`, shuffle it, and assign one entry per occurrence in schedule order (track a per-fault-id occurrence counter since `schedule` interleaves fault types). F1/F2 stay `sign=0` (one-directional faults — catalyst deactivation, fouling — never give these a sign pool).
+3. **Magnitude variety**: don't let every occurrence of a fault land near the same magnitude. The eval set's formula (`delta * (1 + rng.uniform(0, variance))`) only ever scales up from `delta`. The fine-tuning set widens this downward via `delta * rng.uniform(1 - MAG_LOW_SPREAD, 1 + variance)` with `MAG_LOW_SPREAD = 0.5`, i.e. magnitudes span roughly 0.5x-1.0x(+variance) of the nominal delta. The upper bound intentionally stays identical to the eval set's already-stress-tested max (`delta*(1+variance)`) — don't push it higher without rerunning the kind of isolated step-hold stability check the eval set's delta comment references, since a mid-run instability on a 500k-step unattended run is expensive to discover.
+4. After generating, verify and report: per-fault event count, +/- split actually realized for each sign=1 fault, and min/max magnitude actually realized per fault — the script's print block already does this (in addition to the eval-set-style max-simultaneous-faults / time-split / per-fault-duration prints).
+
+Simulation run: at N=500,000, `CSTR-Simulation.ipynb` needs `num_steps=5` chunked executions (`run=1..5`) to keep each chunk close in size to the eval set's single full run (~100,000 raw steps/chunk); rerun nbconvert once per `run` value, editing `run` in the cell between executions. The checkpoint-every-absolute-50000-samples logic and the `Initial_Conditions.h5` handoff between chunks work exactly like the eval pipeline's — same intentional design, not a bug. Since this reuses the same notebook as the eval pipeline, `Initial_Conditions.h5` is transient scratch state for whichever run is in progress — fine to leave it pointed at the fine-tuning checkpoint mid-regeneration, but nothing depends on its contents once the run completes (unlike the three `*_FineTune.h5` outputs, which are the actual deliverable).
 
 ## CSTR-Input.ipynb — data generation design
 Target: **~1,000,000 combined data points**, meaning the sum across `t` + `F1`..`F9` (10 series), not 1M timesteps. Currently `N = 100_000` samples per series → exactly 1,000,000 combined. The 9 `.plt` flag vectors are also saved (needed for the overlap plot) but don't count toward that budget.
