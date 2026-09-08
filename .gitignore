@@ -1,0 +1,6 @@
+envs/
+__pycache__/
+
+# Chronos-2 fine-tuning artifacts - regenerable binary checkpoints, not source
+chronos-2-finetuned/
+chronos-2-finetuned-final/
