@@ -3,6 +3,7 @@ os.environ.setdefault("KMP_DUPLICATE_LIB_OK", "TRUE")  # avoid libomp double-ini
 os.environ.setdefault("OMP_NUM_THREADS", "1")           # avoids an OMP pthread_mutex_init segfault during inference on macOS
 
 import numpy as np
+import torch
 from chronos import Chronos2Pipeline
 
 # 90% interval -> std, assuming an approximately Gaussian predictive distribution
@@ -10,7 +11,13 @@ _Z_90 = 1.2815515655446004
 
 
 class Chronos2Forecaster:
-    def __init__(self, device="cpu"):
+    def __init__(self, device=None):
+        if device is None:
+            # MPS is deliberately excluded here - it crashes inside the Jupyter kernel
+            # process on macOS, so Mac machines fall back to CPU rather than auto-selecting it.
+            device = "cuda" if torch.cuda.is_available() else "cpu"
+        self.device = device
+        print(f"Chronos-2 running on {device}")
         self.pipeline = Chronos2Pipeline.from_pretrained("amazon/chronos-2", device_map=device)
 
     @property
