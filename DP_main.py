@@ -1,30 +1,10 @@
-import os
-import importlib.util
-
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 
-_HERE = os.path.dirname(os.path.abspath(__file__))
-
-
-def _load_module(name, filename):
-    # plain `import` can't reference these - hyphens aren't valid in module names
-    spec = importlib.util.spec_from_file_location(name, os.path.join(_HERE, filename))
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-    return module
-
-
-_cstr_data = _load_module("DP_cstr_data", "DP-cstr_data.py")
-_chronos2_forecaster = _load_module("DP_chronos2_forecaster", "DP-chronos2_forecaster.py")
-_ekf = _load_module("DP_EKF", "DP-EKF.py")
-
-load_cstr_data, STATE_COLUMNS, EXOG_COLUMNS = (
-    _cstr_data.load_cstr_data, _cstr_data.STATE_COLUMNS, _cstr_data.EXOG_COLUMNS,
-)
-Chronos2Forecaster = _chronos2_forecaster.Chronos2Forecaster
-StateFilter = _ekf.StateFilter
+from DP_cstr_data import load_cstr_data, STATE_COLUMNS, EXOG_COLUMNS
+from DP_chronos2_forecaster import Chronos2Forecaster
+from DP_EKF import StateFilter
 
 # --- Config ------------------------------------------------------------------
 DOWNSAMPLE = 20
