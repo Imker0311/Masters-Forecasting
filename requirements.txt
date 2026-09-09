@@ -1,0 +1,25 @@
+# Environment for the CSTR forecasting notebooks.
+# Recreate with:  python3.14 -m venv envs && envs/bin/pip install -r requirements.txt
+# On the Windows PC with an NVIDIA GPU, install torch from the CUDA index first:
+#   pip install torch --index-url https://download.pytorch.org/whl/cu129
+
+numpy>=2.3,<3
+pandas>=2.3.3,<3          # <3 required by gluonts (TabPFN dep); 2.3.3 is the first 2.x with cp314 wheels
+scipy>=1.17
+matplotlib>=3.11
+h5py>=3.16
+
+torch>=2.14
+transformers>=5.16
+huggingface_hub>=1.30
+safetensors>=0.8
+
+chronos-forecasting>=2.3.1
+peft>=0.20                 # required to load the LoRA fine-tune in Chronos2-Compare.ipynb
+
+tabpfn-time-series>=1.2    # NOTE: no [benchmarking] extra - that pulls autogluon, which caps at <3.14
+python-dotenv>=1.2
+
+jupyterlab>=4.6
+ipykernel>=7.3
+ipywidgets>=8.1
