@@ -1,6 +1,7 @@
 envs/
 __pycache__/
 .env
+.DS_Store
 
 
 # Chronos-2 fine-tuning artifacts - regenerable binary checkpoints, not source
