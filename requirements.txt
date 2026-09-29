@@ -20,6 +20,8 @@ peft>=0.20                 # required to load the LoRA fine-tune in Chronos2-Com
 tabpfn-time-series>=1.2    # NOTE: no [benchmarking] extra - that pulls autogluon, which caps at <3.14
 python-dotenv>=1.2
 
+timesfm[torch]>=3.0        # TimesFM 3.0 lives in the `timesfm3` package shipped by this distribution
+
 jupyterlab>=4.6
 ipykernel>=7.3
 ipywidgets>=8.1

@@ -165,6 +165,7 @@ tabpfn_common_utils==0.2.19
 tabpfn_time_series==1.2.0
 terminado==0.18.1
 threadpoolctl==3.6.0
+timesfm==3.0.2
 tinycss2==1.5.1
 tokenizers==0.23.2
 toolz==0.12.1
