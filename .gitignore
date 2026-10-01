@@ -2,7 +2,7 @@ envs/
 __pycache__/
 .env
 .DS_Store
-
+.dat
 
 # Chronos-2 fine-tuning artifacts - regenerable binary checkpoints, not source
 chronos-2-finetuned/
@@ -11,3 +11,6 @@ chronos-2-finetuned-final/
 # CSTR MPC fine-tune (TSFM-MPC project) - same reason: regenerable binary checkpoints
 chronos-2-mpc-finetuned/
 chronos-2-mpc-finetuned-final/
+
+# Short-context Chronos-2 fine-tunes (Chronos2-FineTune.ipynb SAVE_DIR) - full checkpoints are ~480 MB
+chronos-2-cstr-*-final/
