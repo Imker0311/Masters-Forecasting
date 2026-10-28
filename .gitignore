@@ -11,6 +11,7 @@ chronos-2-finetuned-final/
 # CSTR MPC fine-tune (TSFM-MPC project) - same reason: regenerable binary checkpoints
 chronos-2-mpc-finetuned/
 chronos-2-mpc-finetuned-final/
+chronos-2-mpc-finetuned-final-prev/
 
 # Short-context Chronos-2 fine-tunes (Chronos2-FineTune.ipynb SAVE_DIR) - full checkpoints are ~480 MB
 chronos-2-cstr-*-final/
