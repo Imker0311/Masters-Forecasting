@@ -6,11 +6,15 @@
 #   ./envs/bin/pip install -r requirements-lock-macos.txt
 #
 # Use requirements.txt (unpinned) for a fresh/updated install; use this file to reproduce exactly.
+# Updated 2026-10-28 with the packages added since (t0, TiRex-2, Toto 2.0, Timestral, skforecast, lightning).
+# Toto 1.0 is not listed because its exact pins don't resolve on 3.14 - afterwards run:
+#   ./envs/bin/pip install --no-deps toto-ts==0.2.0
 
 accelerate==1.14.0
 aiohappyeyeballs==2.7.1
 aiohttp==3.14.3
 aiosignal==1.4.0
+alembic==1.20.0
 annotated_doc==0.0.5
 annotated_types==0.8.0
 antlr4_python3_runtime==4.9.3
@@ -32,19 +36,23 @@ charset_normalizer==3.5.1
 chronos_forecasting==2.3.2
 click==8.5.0
 cloudpickle==3.1.2
+colorlog==6.12.0
 comm==0.2.3
 contourpy==1.3.3
 cycler==0.12.1
 datasets==4.8.5
+dd-unit-scaling==0.1.0
 debugpy==1.8.21
 defusedxml==0.7.1
 dill==0.4.1
 distro==1.9.0
+docstring_parser==0.18.0
 einops==0.8.2
 executing==2.2.1
 fastjsonschema==2.22.2
 fev==0.10.0
 filelock==3.32.6
+flashrnn==1.0.8
 fonttools==4.64.0
 formulaic==1.2.2
 fqdn==1.5.1
@@ -65,6 +73,7 @@ ipython==9.17.1
 ipython_pygments_lexers==1.1.1
 ipywidgets==8.1.9
 isoduration==20.11.0
+jaxtyping==0.3.11
 jedi==0.20.0
 jinja2==3.1.6
 joblib==1.6.0
@@ -72,10 +81,6 @@ json5==0.15.0
 jsonpointer==3.1.1
 jsonschema==4.26.0
 jsonschema_specifications==2025.9.1
-jupyterlab==4.6.3
-jupyterlab_pygments==0.3.0
-jupyterlab_server==2.28.0
-jupyterlab_widgets==3.0.17
 jupyter_builder==1.2.3
 jupyter_client==8.10.0
 jupyter_core==5.9.1
@@ -83,15 +88,24 @@ jupyter_events==0.12.1
 jupyter_lsp==2.3.1
 jupyter_server==2.21.0
 jupyter_server_terminals==0.5.4
+jupyterlab==4.6.3
+jupyterlab_pygments==0.3.0
+jupyterlab_server==2.28.0
+jupyterlab_widgets==3.0.17
 kiwisolver==1.5.1
 lark==1.3.1
 lightgbm==4.7.0
+lightning==2.6.6
+lightning-utilities==0.15.3
+llvmlite==0.50.0
+Mako==1.4.3
 markdown_it_py==4.2.0
 markupsafe==3.0.3
 matplotlib==3.11.1
 matplotlib_inline==0.2.2
 mdurl==0.1.2
 mistune==3.3.4
+mlstm_kernels==2.0.6
 mlx==0.32.2
 mlx_metal==0.32.2
 mpmath==1.3.0
@@ -103,10 +117,13 @@ nbconvert==7.17.1
 nbformat==5.11.1
 nest_asyncio2==1.7.2
 networkx==3.6.1
+ninja==1.13.2
 notebook_shim==0.2.4
+numba==0.68.0
 numpy==2.5.3
 nvidia_ml_py==13.610.43
 omegaconf==2.3.0
+optuna==5.0.0
 packaging==26.3
 pandas==2.3.3
 pandocfilters==1.5.1
@@ -135,6 +152,7 @@ pyparsing==3.3.2
 python_dateutil==2.9.0.post0
 python_dotenv==1.2.3
 python_json_logger==4.2.0
+pytorch-lightning==2.6.6
 pytz==2026.3.post1
 pyyaml==6.0.3
 pyzmq==27.2.0
@@ -145,6 +163,7 @@ rfc3339_validator==0.1.4
 rfc3986_validator==0.1.1
 rfc3987_syntax==1.1.0
 rich==15.0.0
+rotary-embedding-torch==0.9.1
 rpds_py==2026.6.3
 ruff==0.16.6
 safetensors==0.8.0
@@ -154,7 +173,9 @@ send2trash==2.1.0
 setuptools==84.0.0
 shellingham==1.5.4
 six==1.17.0
+skforecast==0.26.0
 soupsieve==2.9.2
+SQLAlchemy==2.1.4
 sseclient_py==1.9.0
 stack_data==0.6.3
 statsmodels==0.15.0
@@ -163,14 +184,21 @@ tabpfn==8.5.0
 tabpfn_client==0.5.3
 tabpfn_common_utils==0.2.19
 tabpfn_time_series==1.2.0
+tabulate==0.10.0
 terminado==0.18.1
+tfc-t0==0.5.0
 threadpoolctl==3.6.0
 timesfm==3.0.2
+timestral @ git+https://github.com/mistralai/timestral.git@a534bdbd244d64f3d9d743f46c7bf6fc330ed4ff
 tinycss2==1.5.1
+tirex-2==0.3.0
 tokenizers==0.23.2
 toolz==0.12.1
 torch==2.14.0
+torchmetrics==1.9.0
 tornado==6.5.8
+toto-2==2.0.0
+toto-models==1.0.0
 tqdm==4.70.0
 traitlets==5.16.1
 transformers==5.16.1
@@ -178,13 +206,16 @@ typer==0.27.2
 typing_extensions==4.16.0
 typing_inspection==0.4.4
 tzdata==2026.3
+unit-scaling==0.3.5
 uri_template==1.3.0
 urllib3==2.7.0
+wadler-lindig==0.1.7
 wcwidth==0.8.3
 webcolors==25.10.0
 webencodings==0.6.1
 websocket_client==1.9.2
 widgetsnbextension==4.0.16
 wrapt==2.4.1rc1
+xlstm==2.0.6
 xxhash==3.8.1
 yarl==1.24.5

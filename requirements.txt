@@ -22,6 +22,15 @@ python-dotenv>=1.2
 
 timesfm[torch]>=3.0        # TimesFM 3.0 lives in the `timesfm3` package shipped by this distribution
 
+tfc-t0>=0.5                # t0 (The Forecasting Company) - imported as `t0`
+tirex-2>=0.3               # TiRex-2 (NX-AI) - imported as `tirex2`; CUDA needs nvcc, Windows needs MSVC (see notebook)
+toto-models>=1.0           # Toto 2.0 (Datadog) - imported as `toto2`
+lightning>=2.6             # imported by gluonts.torch, which Toto 1.0 (toto-ts) needs
+# Toto 1.0 (Toto-Forecast.ipynb): toto-ts pins exact old versions (torch==2.7.0, numpy==1.26, ...) that don't exist
+# for Python 3.14, so install it separately after this file, without its deps:  pip install --no-deps toto-ts
+timestral @ git+https://github.com/mistralai/timestral.git   # Timestral (Mistral) - not on PyPI
+skforecast>=0.26
+
 jupyterlab>=4.6
 ipykernel>=7.3
 ipywidgets>=8.1
